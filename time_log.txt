@@ -1,0 +1,19 @@
+2015-06-11 13:44:55.869000	Time Tracker	5	Debugging Timer Code
+2015-06-11 13:46:00.028000	Time Tracker	4	Debugging Timer Code
+2015-06-11 13:46:08.880000	Labs	2	Debugging Timer Code
+2015-06-11 13:48:12.526000	Time Tracker	3	Testing new Log Entry Formula
+2015-06-11 14:10:21.770000	Time Tracker	6	Enter your task comments here.
+2015-06-11 14:10:42.342000	Time Tracker	5	Enter your task comments here.
+2015-06-12 11:44:20.746000	Time Tracker	6	Working on the DB interface with the Data Entry Class
+2015-06-12 11:45:37.670000	Time Tracker	6	Working on the DB to Data Entry Class connection
+2015-06-12 11:52:22.655000	Time Tracker	7	Test Comment
+2015-06-12 11:54:03.586000	Dice Game	6	Test Comment Number 2
+2015-06-12 11:55:57.572000	Dice Game	6	This is Test Number 2
+2015-06-12 11:59:46.179000	Time Tracker	5	Enter your task comments here.
+2015-06-12 12:00:54.899000	Time Tracker	6	Enter your task comments here.
+2015-06-12 12:04:27.581000	Dice Game	7	COMMENT GOT DAMNIT!!
+2015-06-12 12:05:32.511000	Exercises	8	COMMENT NUMBER #3
+2015-06-12 12:29:59.377000	Time Tracker	2	Testing #5
+2015-06-12 12:31:04.748000	Labs	2	TEST #5
+2015-06-12 12:32:41.437000	Time Tracker	3	TEST 4
+2015-06-12 12:33:07.687000	Dice Game	3	TEST WHATEVER
