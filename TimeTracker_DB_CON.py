@@ -130,6 +130,20 @@ class MySQLCon:
         if DEBUG:
             print(message)
         return
+    
+    def checkDatabaseConnection(self):
+        # execute SQL query using execute() method.
+        cursor.execute("SELECT VERSION()")
+
+        # Fetch a single row using fetchone() method.
+        try:
+            data = cursor.fetchone()
+            return "Database version : %s " % data
+        except:
+            return False
+            
+        # disconnect from server
+        db.close()
         
         
     #############################

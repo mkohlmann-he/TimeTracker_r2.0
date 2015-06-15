@@ -17,7 +17,8 @@
 #Note, this is overly commented, because GUI's are a new topic to me. I want to be able to come back to it later and understand it.
 
 
-#use the Try-Except for the import, because wxPython is not a default Library, if the user doesn't have it installed, it will throw an error.
+#use the Try-Except for the import, because wxPython is not a default Library, 
+#if the user doesn't have it installed, it will throw an error.
 try:
     import wx
 except ImportError:
@@ -27,6 +28,13 @@ try:
     from DataEntryClass import *
 except ImportError:
     raise ImportError,"The DataEntryClass.py module is required to run this program"
+    
+try:
+    from TimeTracker_DB_CON import *
+except ImportError:
+    raise ImportError,"The TimeTracker_DB_CON.py module is required to run this program"
+
+
     
 #Start of GUIHandle Class. 
 #wxPython has it's own class, that our GUI will inherit. 
@@ -41,9 +49,34 @@ class GUIHandle(wx.Frame):
         #DataEntryControl
         self.dataEntry = DataEntry()
 
+        
+        
+        
+    ######################
+    # CREATE GUI OBJECTS #
+    ######################
     def initialize(self):
         self.timeTrackerStatus = "STOP"
         sizer = wx.GridBagSizer() # Put button objects on Grid Spacing (GridBagSizer is the grid layout manager)
+        
+        # Create a Menubar
+        menuBar = wx.MenuBar()
+        pref = wx.Menu()
+        pref.Append(101, '&Employee Name', 'Change the Employee Name')
+        pref.Append(102, '&Local Only', 'Ignore the databse, and only save to local text files', wx.ITEM_CHECK)
+        pref.AppendSeparator()
+        pref.Append(105, '&Database Host', 'Change the location of the database')
+        pref.Append(106, '&Database Name', 'Change the database name accessed on the server')
+        pref.Append(107, '&Test Connection', 'Using the setting above, test the connection to the server')
+        menuBar.Append(pref, "Preferences")
+        self.SetMenuBar(menuBar)
+        #Create Menu Binds
+        self.Bind(wx.EVT_MENU, self.onMenuToggleLocalOnly, id=102)
+        self.Bind(wx.EVT_MENU, self.onMenuTestDatabaseConnection, id=107)
+        
+        
+        # Flag if you want to connect to the database or not
+        self.localOnly = False
         
         # Create Object, then Add the object to the layout manager (sizer in this case), then bind it to event handler
         # Add TextBox for Task Comments
@@ -51,7 +84,7 @@ class GUIHandle(wx.Frame):
         sizer.Add(self.entry, (0,0), (1,4), wx.EXPAND) # Adds the text box to the sizer manager
         
         # Add a Combo box for testing.
-        self.projectCombo = wx.ComboBox(self, -1, choices=self.getProjectChoices(), style=wx.CB_READONLY)
+        self.projectCombo = wx.ComboBox(self, -1, choices=self.getProjectChoices(), style=wx.CB_DROPDOWN)
         self.projectCombo.SetSelection(0)
         sizer.Add(self.projectCombo, (1,0), (1,1), wx.EXPAND)
         
@@ -78,8 +111,7 @@ class GUIHandle(wx.Frame):
         
 
         # Set which colums/rows you want expandable
-        sizer.AddGrowableCol(0) # This command lets the sizer expand the columns and rows as the main window grows. Specifically Column 0, each one must be called out individually as a separate command.
-        #sizer.AddGrowableCol(2) # This command lets the sizer expand the columns and rows as the main window grows. Specifically Column 3
+        sizer.AddGrowableCol(0) # This command lets the sizer expand the columns and rows as the main window grows. Each row/column must be called out individually as a separate command.
         
         
         #Runs the sizer to build the control elements
@@ -97,6 +129,11 @@ class GUIHandle(wx.Frame):
         
         self.Show(True) # after the window is constructed, Show it.
 
+        
+        
+    ##################
+    # EVENT HANDLERS #
+    ##################
     def onStartButtonClick(self, event):
         print("DEBUG: Start Button Pressed")
         if self.timeTrackerStatus == "STOP":
@@ -147,6 +184,29 @@ class GUIHandle(wx.Frame):
             print("^DEBUG: Sop Button Pressed, while status is 'Running'")        
         return
             
+    def onMenuToggleLocalOnly(self, event):
+        print("DEBUG: MENU Toggle Local selected")
+        self.localOnly = not self.localOnly
+        self.projectCombo.Clear()
+        self.projectCombo.AppendItems(self.getProjectChoices())
+        return
+        
+    def onMenuTestDatabaseConnection(self, event):
+        print("DEBUG: MENU Test Database Connection selected")
+        result = MySQLCon.checkDatabaseConnection()
+        if result is False:
+            result = "Connection Failed"
+            wx.MessageBox(result, 'Connection Failed', wx.ICON_HAND)
+        else:
+            wx.MessageBox(result, 'Connection Passed', wx.ICON_INFORMATION)
+        print("After MessageBox")
+        return
+
+        
+        
+    ####################
+    # HELPER FUNCTIONS #
+    ####################
     def setButtonColors(self, status):
         if status == "RUNNING":
             self.startButton.SetForegroundColour("LIGHT GREY")
@@ -175,18 +235,31 @@ class GUIHandle(wx.Frame):
             self.entry.SetEditable(True)
             self.entry.SetBackgroundColour(wx.WHITE)
             self.projectCombo.Enable(True)
-            
-            
-    def getProjectChoices(self):
-        projectFile_name = "project_list.txt"
-        try:
-            projectFile = open(projectFile_name, "r")
-        except:
-            raise ImportError,"The file 'project_list.txt' must be in the same directory as the main program"
-                    
-        projectList = [line.strip("\n") for line in projectFile.readlines()]
-        return projectList
+        return
 
+    def getProjectChoices(self):
+        if self.localOnly:
+            projectFile_name = "project_list.txt"
+            try:
+                projectFile = open(projectFile_name, "r")
+            except:
+                raise ImportError,"The file 'project_list.txt' must be in the same directory as the main program"
+            projectList = [line.strip("\n") for line in projectFile.readlines()]
+            return projectList
+        else:
+            print("Pull project list from server")
+            # Temporary Placeholder, this is the code for pulling the local text file.
+            projectFile_name = "project_list.txt"
+            try:
+                projectFile = open(projectFile_name, "r")
+            except:
+                raise ImportError,"The file 'project_list.txt' must be in the same directory as the main program"
+            projectList = [line.strip("\n") for line in projectFile.readlines()]
+            return projectList
+            
+            
+            
+            
 
 # Helper function to start the GUI (Used if starting from an external file)          
 def startGUI():
@@ -195,7 +268,7 @@ def startGUI():
     app.MainLoop() #The wxPython MainLoop is what scans and looks for event calls.
     
     
-##### Start Main Process Here
+##### Start Main Process Here when running from command line.
 if __name__ == "__main__":
     #Create the Data Entry Object to pass into the GUI
     startGUI()
